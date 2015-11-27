@@ -1,16 +1,25 @@
-OBJ=cv
-CFLAGS=-g -Wall -D_FILE_OFFSET_BITS=64
-
-PREFIX = $(DESTDIR)/usr/local
+OBJ = progress
+override CFLAGS += -g -Wall -D_FILE_OFFSET_BITS=64
+override LDFLAGS += -lncurses -lm
+PREFIX ?= /usr/local
 BINDIR = $(PREFIX)/bin
+MANDIR = $(PREFIX)/share/man/man1
 
-$(OBJ) : cv.o sizes.o
-	gcc -Wall $^ -o $@
+$(OBJ) : progress.o sizes.o hlist.o
+	$(CC) -Wall $^ -o $@ $(LDFLAGS)
 %.o : %.c
-	gcc $(CFLAGS) -c $^
+	$(CC) $(CFLAGS) -c $^
 clean :
 	rm -f *.o $(OBJ)
 install : $(OBJ)
-	@echo "Installing to $(BINDIR) ..."
-	@install -m 0755 $(OBJ) $(BINDIR)/$(TARGET) || \
+	@echo "Installing program to $(DESTDIR)$(BINDIR) ..."
+	@mkdir -p $(DESTDIR)$(BINDIR)
+	@install -pm0755 $(OBJ) $(DESTDIR)$(BINDIR)/$(TARGET) || \
 	echo "Failed. Try "make PREFIX=~ install" ?"
+	@echo "Installing manpage to $(DESTDIR)$(MANDIR) ..."
+	@mkdir -p $(DESTDIR)$(MANDIR)
+	@install -pm0644 $(OBJ).1 $(DESTDIR)$(MANDIR)/ || \
+	echo "Failed. Try "make PREFIX=~ install" ?"
+uninstall :
+	@rm -f $(DESTDIR)$(BINDIR)/$(OBJ)
+	@rm -f $(DESTDIR)$(MANDIR)/$(OBJ).1

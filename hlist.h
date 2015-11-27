@@ -15,14 +15,18 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PROGRESS_SIZES_H
-#define PROGRESS_SIZES_H
+#ifndef PROGRESS_HLIST_H
+#define PROGRESS_HLIST_H
 
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+typedef struct hlist {
+  struct hlist *prev;
+  struct hlist *next;
+  int value;
+} hlist;
 
-void format_size(uint64_t size, char *result);
+void set_hlist_size(double throughput_wait_secs);
+int add_to_hlist(hlist **begin, hlist **end, int size, int value);
+void free_hlist(hlist *begin);
+int get_hlist_average(hlist *begin, int size);
 
 #endif
